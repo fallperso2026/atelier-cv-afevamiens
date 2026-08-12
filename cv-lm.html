@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon CV de stage</title>
+<!-- Ajout de HTML2Canvas et jsPDF pour gérer l'export de façon simple et robuste côté client -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,700;0,800;0,900;1,400&display=swap');
+
+:root{
+  --paper:#FEFEFC;
+  --grid:#D9EEF2;
+  --ink:#111111;
+  --ink-soft:#5A5A5A;
+  --rouge:#D2000D;
+  --rouge-dark:#A80009;
+  --vert:#C8D200;
+  --violet:#802A8F;
+  --bleu-ateliers:#262C82;
+  --bleu-es:#58C5CF;
+  --jaune:#FCB81C;
+  --line:#E2E2E2;
+  --card-shadow: 0 10px 30px rgba(17,17,17,0.09);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/28px 28px,
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/28px 28px,
+    var(--paper);
+  color:var(--ink);
+  font-family:'Montserrat', sans-serif;
+  font-weight:300;
+  min-height:100vh;
+}
+
+.app{max-width:1240px;margin:0 auto;padding:28px 20px 80px;}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:22px;}
+.brand{display:flex;align-items:center;gap:14px;}
+.brand-logo{height:88px;width:auto;display:block;}
+.preview-label{font-size:12.5px;color:var(--ink-soft);background:#F5F5FB;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-weight:600;text-align:center;}
+.preview-hint{font-size:11.5px;color:var(--ink-soft);text-align:center;margin-bottom:10px;line-height:1.5;}
+.preview-hint b{color:var(--ink);}
+.theme-picker{
+  background:#F5F5FB;border-radius:12px;padding:16px 18px;margin:16px 0;text-align:center;
+}
+.theme-picker-label{font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:12px;}
+.theme-swatches{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.theme-swatch{
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:2px;
+  width:38px;height:26px;border-radius:8px;border:3px solid white;box-shadow:0 0 0 2px var(--line);
+  cursor:pointer;padding:0;overflow:hidden;background:white;transition:transform .12s ease;
+}
+.theme-swatch span{display:block;width:100%;height:100%;}
+.theme-swatch:hover{transform:translateY(-2px) scale(1.06);}
+.theme-swatch.selected{box-shadow:0 0 0 3px var(--rouge);}
+.field-error{border-color:var(--rouge)!important;}
+.required-hint{font-size:11.5px;color:var(--rouge-dark);margin-top:6px;font-weight:700;display:none;}
+.required-hint.show{display:block;}
+.step-info{
+  background:#EFF6FF;border-left:5px solid var(--bleu-es);border-radius:4px;
+  padding:12px 14px;font-size:13px;line-height:1.55;color:#0F3B47;margin-bottom:16px;font-weight:400;
+}
+.correction-box{
+  background:#FFF1EF;border:2px dashed var(--rouge);border-radius:10px;padding:14px 16px;margin-bottom:18px;font-size:13px;line-height:1.55;color:var(--ink);
+}
+.correction-box b{color:var(--rouge-dark);}
+.congrats-box{text-align:center;padding:10px 6px;}
+.confetti-row{font-size:30px;letter-spacing:8px;margin-bottom:12px;animation:confettiWiggle 1.4s ease-in-out infinite;}
+@keyframes confettiWiggle{
+  0%,100%{transform:translateY(0) rotate(0deg);}
+  25%{transform:translateY(-4px) rotate(-4deg);}
+  75%{transform:translateY(-4px) rotate(4deg);}
+}
+.congrats-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:22px;color:var(--rouge);margin:0 0 12px;}
+.congrats-text{font-size:14px;line-height:1.6;color:var(--ink);margin:0 0 12px;max-width:440px;margin-left:auto;margin-right:auto;}
+.congrats-text b{color:var(--rouge-dark);}
+.brand h1{font-family:'Montserrat',sans-serif;font-weight:800;font-size:21px;margin:0;letter-spacing:-0.01em;}
+.brand p{margin:2px 0 0;font-size:12.5px;color:var(--ink-soft);font-weight:400;}
+
+.mode-switch{display:flex;background:white;border:2px solid var(--line);border-radius:999px;padding:4px;gap:2px;}
+.mode-switch button{
+  border:none;background:transparent;padding:9px 18px;border-radius:999px;
+  font-family:'Montserrat',sans-serif;font-weight:700;font-size:13.5px;color:var(--ink-soft);cursor:pointer;
+  transition:all .18s ease;
+}
+.mode-switch button.active{background:var(--rouge);color:white;}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:1.05fr 1fr;gap:24px;align-items:flex-start;min-width:0;}
+@media (max-width:920px){.layout{grid-template-columns:1fr;}}
+
+/* STEP NAV */
+.steps-rail{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.step-pill{
+  font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:999px;
+  background:white;border:2px solid var(--line);color:var(--ink-soft);cursor:pointer;
+  font-family:'Montserrat',sans-serif;
+}
+.step-pill.current{border-color:var(--rouge);color:var(--rouge-dark);background:#FBE7E5;}
+.step-pill.done{border-color:var(--vert);color:#5C6300;background:#F5F7DB;}
+
+/* FORM CARD */
+.card{
+  background:white;border-radius:18px;padding:26px 26px 22px;
+  box-shadow:var(--card-shadow);border:1px solid #EFEEF9;min-width:0;
+}
+.step-title{
+  font-family:'Montserrat',sans-serif;font-weight:800;font-size:19px;margin:0 0 4px;
+  color:var(--rouge);display:flex;align-items:center;gap:8px;
+}
+.step-title img.fleche{height:14px;width:auto;}
+.step-sub{color:var(--ink-soft);font-size:13.5px;margin:0 0 18px;font-weight:400;}
+
+.card-body{display:flex;gap:22px;align-items:flex-start;}
+.card-main{flex:1;min-width:0;}
+.card-illus{flex:0 0 128px;display:flex;align-items:flex-end;justify-content:center;padding-top:6px;}
+.card-illus img{width:100%;height:auto;max-height:210px;object-fit:contain;animation:popIn .35s ease both;}
+@media (max-width:640px){.card-illus{display:none;}}
+
+.tip{
+  background:#FAFBEA;border-left:5px solid var(--vert);border-radius:4px;
+  padding:12px 14px;font-size:13px;line-height:1.55;color:#3A3A00;margin-bottom:20px;
+  font-weight:400;
+}
+.tip b{color:var(--ink);font-weight:700;}
+
+.field{margin-bottom:16px;}
+.field label{display:block;font-weight:700;font-size:13px;margin-bottom:6px;color:var(--ink);}
+.field .hint{font-weight:400;color:var(--ink-soft);font-size:12px;}
+input[type=text],input[type=email],input[type=tel],textarea,select{
+  width:100%;padding:10px 12px;border:2px solid var(--line);border-radius:8px;
+  font-family:'Montserrat',sans-serif;font-weight:400;font-size:14px;color:var(--ink);background:#FCFCFC;
+}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--rouge);}
+textarea{resize:vertical;min-height:80px;line-height:1.5;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media (max-width:520px){.row2{grid-template-columns:1fr;}}
+
+.chip-group{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{
+  padding:7px 14px;border-radius:999px;border:2px solid var(--line);background:white;
+  font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink-soft);user-select:none;
+  font-family:'Montserrat',sans-serif;
+}
+.chip.selected{background:var(--bleu-ateliers);border-color:var(--bleu-ateliers);color:white;}
+
+.nav-buttons{display:flex;justify-content:space-between;align-items:center;margin-top:22px;}
+.nav-hint{font-size:13px;font-weight:700;color:var(--rouge-dark);}
+.nav-hint-banner{
+  margin-top:14px;text-align:center;font-size:13px;font-weight:700;color:var(--rouge-dark);
+  background:#FBE7E5;border-radius:8px;padding:10px 14px;line-height:1.5;
+}
+button.btn{
+  font-family:'Montserrat',sans-serif;font-weight:700;font-size:13.5px;border-radius:8px;
+  padding:11px 20px;border:none;cursor:pointer;transition:transform .12s ease;
+}
+button.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--rouge);color:white;}
+.btn-primary:hover{background:var(--rouge-dark);}
+.btn-ghost{background:transparent;color:var(--ink-soft);border:2px solid var(--line)!important;}
+.btn-secondary{background:var(--bleu-ateliers);color:white;}
+button.btn:disabled{opacity:0.35;cursor:not-allowed;}
+
+/* PREVIEW */
+.preview-wrap{position:sticky;top:20px;min-width:0;}
+.preview-actions{display:flex;gap:10px;margin-bottom:12px;justify-content:flex-end;}
+.preview-actions button{
+  display:flex;align-items:center;gap:6px;font-family:'Montserrat',sans-serif;
+}
+.paper{
+  background:white;border-radius:4px;box-shadow:var(--card-shadow);
+  padding:0;min-height:400px;position:relative;overflow:hidden;
+  background-image: linear-gradient(90deg, transparent 46px, var(--grid) 46px, var(--grid) 48px, transparent 48px);
+}
+.paper::before{
+  content:"";position:absolute;top:0;right:0;width:0;height:0;
+  border-style:solid;border-width:0 26px 26px 0;
+  border-color:transparent var(--paper) transparent transparent;
+  filter:drop-shadow(-2px 2px 2px rgba(0,0,0,0.08));
+  z-index:2;
+}
+
+/* CV TEMPLATE - modern sidebar layout */
+.cv-shell{background:none;}
+.cv-band{padding:28px 32px 22px;display:flex;align-items:center;gap:20px;}
+.cv-avatar{
+  flex:0 0 76px;height:76px;border-radius:50%;background:var(--rouge);color:white;
+  display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;
+  font-weight:800;font-size:26px;overflow:hidden;border:3px solid white;box-shadow:0 0 0 2px var(--line);
+}
+.cv-avatar img{width:100%;height:100%;object-fit:cover;}
+.cv-name{font-family:'Montserrat',sans-serif;font-weight:800;font-size:27px;margin:0;color:var(--ink);overflow-wrap:anywhere;}
+.cv-target{
+  display:inline-block;margin-top:8px;background:var(--rouge);color:white;
+  font-weight:700;font-size:13px;padding:5px 13px;border-radius:6px;text-transform:uppercase;letter-spacing:.02em;overflow-wrap:anywhere;
+}
+.cv-columns{display:flex;align-items:stretch;}
+.cv-sidebar{flex:0 0 34%;}
+.cv-main-col{flex:1 1 66%;min-width:0;}
+.cv-sidebar{background:var(--cv-sidebar,var(--bleu-ateliers));color:white;padding:20px 20px 26px;}
+.cv-side-block{margin-bottom:20px;}
+.cv-side-block h4{
+  font-family:'Montserrat',sans-serif;font-weight:800;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--vert);margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,0.25);
+}
+.cv-side-block p{font-size:13px;line-height:1.65;margin:0;color:#EDEEFB;font-weight:400;word-break:break-word;overflow-wrap:anywhere;}
+.cv-side-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.cv-side-tags span{background:rgba(255,255,255,0.14);color:white;font-size:12px;font-weight:700;padding:4px 8px;border-radius:5px;}
+.cv-side-empty{color:rgba(255,255,255,0.55);font-style:italic;font-size:12px;}
+.cv-main-col{padding:24px 30px 32px;}
+.cv-section{margin-bottom:18px;}
+.cv-section h3{
+  font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;
+  color:white;display:inline-block;padding:5px 13px;border-radius:6px;margin:0 0 9px;
+}
+.cv-section.c-rouge h3{background:var(--cv-c-rouge,var(--rouge));}
+.cv-section.c-vert h3{background:var(--cv-c-vert,#6C7A00);}
+.cv-section.c-violet h3{background:var(--cv-c-violet,var(--violet));}
+.cv-section.c-jaune h3{background:var(--cv-c-jaune,#B77800);}
+.cv-section.c-bleu h3{background:var(--cv-c-bleu,var(--bleu-ateliers));}
+.cv-section p, .cv-section li{font-size:13.5px;line-height:1.6;color:var(--ink);font-weight:400;overflow-wrap:anywhere;word-break:break-word;text-align:justify;}
+.cv-section ul{margin:0;padding-left:18px;}
+.cv-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.cv-tags span{background:#F1F1F1;color:var(--ink);font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px;overflow-wrap:anywhere;word-break:break-word;max-width:100%;}
+.empty-hint{color:#B7B7B7;font-style:italic;font-size:13px;font-weight:400;overflow-wrap:anywhere;}
+
+/* LM TEMPLATE */
+.lm-shell{padding:34px 32px;}
+.lm-topline{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-soft);margin-bottom:26px;font-weight:400;}
+.lm-dest{white-space:pre-line;font-size:13px;font-weight:400;}
+.lm-date{text-align:right;}
+.lm-object{font-weight:700;margin:18px 0;font-size:13.5px;color:var(--rouge);}
+.lm-body{white-space:pre-line;font-size:13.5px;line-height:1.75;color:var(--ink);font-weight:400;}
+.lm-sign{margin-top:22px;text-align:right;font-size:13.5px;font-weight:400;}
+
+.photo-upload{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.photo-preview{
+  flex:0 0 64px;height:64px;border-radius:50%;background:#F1F1F1;border:2px dashed var(--line);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--ink-soft);font-size:11px;text-align:center;
+}
+.photo-preview img{width:100%;height:100%;object-fit:cover;}
+.photo-actions{display:flex;flex-direction:column;gap:6px;}
+.photo-actions .hint{font-size:11.5px;color:var(--ink-soft);}
+.aide-toggle{margin-top:8px;}
+.aide-toggle a{color:var(--bleu-ateliers);font-size:12.5px;font-weight:700;text-decoration:underline;cursor:pointer;}
+.aide-box{background:#F5F5FB;border-radius:10px;padding:14px;margin-top:10px;border:1px dashed var(--line);}
+.exp-card{background:#F5F5FB;border-radius:10px;padding:14px;margin-bottom:12px;border:1px solid var(--line);}
+.exp-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.exp-card-head span{font-weight:800;font-size:12.5px;color:var(--ink);}
+.exp-card-head a{color:var(--rouge-dark);font-size:12px;font-weight:700;text-decoration:underline;cursor:pointer;}
+.aide-box .field{margin-bottom:10px;}
+.aide-box .field:last-of-type{margin-bottom:12px;}
+
+.recap-note{font-size:12px;color:var(--ink-soft);margin-top:14px;text-align:center;}
+
+/* ACCUEIL / QUIZ */
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(14px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@keyframes popIn{
+  from{opacity:0;transform:scale(0.9) translateY(8px);}
+  to{opacity:1;transform:scale(1) translateY(0);}
+}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0deg);}
+  50%{transform:translateY(-5px) rotate(-3deg);}
+}
+@keyframes pulseBadge{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.05);}
+}
+.animate-in{animation:fadeInUp .35s ease both;}
+.accueil-pictos{text-align:center;font-size:26px;margin-bottom:10px;letter-spacing:6px;}
+.accueil-pictos span{display:inline-block;animation:float 2.2s ease-in-out infinite;}
+.accueil-card{
+  background:white;border-radius:18px;padding:34px 30px;box-shadow:var(--card-shadow);
+  border:1px solid #EFEEF9;max-width:720px;margin:0 auto;
+}
+.accueil-hero{text-align:left;margin-bottom:22px;max-width:640px;margin-left:auto;margin-right:auto;}
+.accueil-hero h2{font-family:'Montserrat',sans-serif;font-weight:800;font-size:24px;margin:0 0 10px;color:var(--rouge);text-align:center;}
+.accueil-hero p{color:var(--ink-soft);font-size:14px;margin:0 0 10px;font-weight:400;line-height:1.55;}
+.accueil-hero a{color:var(--rouge-dark);text-decoration:underline;cursor:pointer;font-weight:700;}
+.accueil-domains{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:24px 0;}
+@media (max-width:520px){.accueil-domains{grid-template-columns:1fr;}}
+.domain-chip{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;
+  border:2px solid var(--line);background:white;cursor:pointer;font-family:'Montserrat',sans-serif;
+  font-weight:700;font-size:13.5px;color:var(--ink);transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;
+  text-align:left;animation:popIn .3s ease both;
+}
+.domain-chip:hover{border-color:var(--rouge);transform:translateY(-2px) scale(1.02);box-shadow:0 6px 14px rgba(210,0,13,0.15);}
+.domain-chip:active{transform:translateY(0) scale(0.98);}
+.domain-chip .emoji{font-size:20px;display:inline-block;}
+.domain-chip:hover .emoji{animation:float 0.6s ease;}
+.accueil-skip{text-align:center;margin-top:18px;}
+.quiz-banner{
+  display:block;width:100%;text-align:center;margin:20px 0 6px;padding:14px 18px;border-radius:12px;
+  background:linear-gradient(90deg,var(--violet),var(--bleu-ateliers));border:none;cursor:pointer;
+  color:white;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14.5px;
+  box-shadow:0 6px 16px rgba(128,42,143,0.3);animation:pulseBadge 2s ease-in-out infinite;
+}
+.quiz-banner span{display:block;font-weight:700;font-size:13px;margin-top:2px;text-decoration:underline;}
+.quiz-banner:hover{animation:none;transform:scale(1.01);}
+.accueil-skip a{color:var(--ink-soft);font-size:12.5px;text-decoration:underline;cursor:pointer;}
+
+.quiz-question{
+  font-family:'Montserrat',sans-serif;font-weight:800;font-size:17px;text-align:center;
+  color:var(--ink);margin:6px 0 4px;
+}
+.quiz-progress{display:flex;justify-content:center;gap:8px;margin-top:14px;}
+.quiz-dot{width:10px;height:10px;border-radius:50%;background:var(--line);}
+.quiz-dot.done{background:var(--vert);}
+.quiz-dot.current{background:var(--rouge);transform:scale(1.3);}
+
+.result-card{display:flex;gap:20px;align-items:center;}
+.result-illus{flex:0 0 130px;}
+.result-illus img{width:100%;height:auto;animation:float 3s ease-in-out infinite;}
+.result-main{flex:1;min-width:0;}
+.result-badge{
+  display:inline-block;background:var(--jaune);color:var(--ink);font-weight:800;font-size:11px;
+  padding:4px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;
+  animation:pulseBadge 1.6s ease-in-out infinite;
+}
+.result-poste{font-family:'Montserrat',sans-serif;font-weight:800;font-size:20px;margin:0 0 4px;color:var(--ink);}
+.result-secteur{color:var(--rouge-dark);font-weight:700;font-size:13px;margin:0 0 12px;}
+.result-desc{font-size:13.5px;line-height:1.6;color:var(--ink-soft);margin:0 0 14px;font-weight:400;}
+.result-keywords{margin-bottom:14px;}
+.result-keywords-label{display:block;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.result-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
+@media (max-width:640px){.result-card{flex-direction:column;}.result-illus{flex:0 0 auto;width:110px;}}
+
+@media print{
+  body{background:white;}
+  .app > *:not(#printArea){display:none!important;}
+  #printArea{display:block!important;}
+  .paper{box-shadow:none;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="brand">
+      <img class="brand-logo" alt="Afev Amiens" src="" data-illus="logo">
+      <div>
+        <h1>L'Atelier CV et lettre de motivation de l'Afev !</h1>
+        <p>Prépare ton CV et ta lettre pour ton stage de 3e, étape par étape !</p>
+      </div>
+    </div>
+    <div class="mode-switch" id="modeSwitch" style="display:none;">
+      <button id="tabCV" class="active" onclick="setMode('cv')">📄 Mon CV</button>
+      <button id="tabLM" onclick="setMode('lm')">✉️ Ma lettre</button>
+    </div>
+  </div>
+
+  <div id="accueilScreen"></div>
+
+  <div class="steps-rail" id="stepsRail" style="display:none;"></div>
+
+  <div class="layout" id="mainLayout" style="display:none;">
+    <div class="card" id="formCard"></div>
+
+    <div class="preview-wrap">
+      <div class="preview-actions" id="previewActions" style="display:none;">
+        <!-- Boutons ajoutés pour le téléchargement -->
+        <button class="btn btn-primary" onclick="telechargerPDF()">🖨️ Télécharger en PDF</button>
+        <button class="btn btn-secondary" onclick="telechargerImage()">🖼️ Télécharger en Image</button>
+      </div>
+      <div class="preview-hint" id="previewHint" style="display:none;">
+        Ceci est l'aperçu de ton document. Tu peux le télécharger directement.
+      </div>
+      <div class="preview-label" id="previewLabel">👀 Aperçu de ton document — tu pourras l'enregistrer en PDF ou Image.</div>
+      <div class="paper" id="preview">
+        <!-- Ajout de contenu de démonstration -->
+        <div class="cv-shell">
+            <div class="cv-band">
+                <div class="cv-avatar">M</div>
+                <div>
+                    <h2 class="cv-name">Exemple Nom</h2>
+                    <div class="cv-target">Recherche de stage</div>
+                </div>
+            </div>
+            <div class="cv-columns">
+                <div class="cv-sidebar">
+                    <div class="cv-side-block">
+                        <h4>Contact</h4>
+                        <p>email@exemple.com</p>
+                        <p>06 12 34 56 78</p>
+                    </div>
+                </div>
+                <div class="cv-main-col">
+                    <div class="cv-section c-rouge">
+                        <h3>Expériences</h3>
+                        <p>Détail de l'expérience ici...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="recap-note">Aperçu mis à jour automatiquement au fil de tes réponses.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Zone dédiée à l'impression / export PDF -->
+<div id="printArea" style="display:none;"></div>
+
+<script>
+// --- AJOUT : Fonctions d'exportation (commentaires en français) ---
+
+// Fonction pour télécharger l'élément cible (#preview) sous forme d'image (PNG)
+function telechargerImage() {
+    const cible = document.getElementById('preview');
+    // html2canvas capture le rendu visuel de la div
+    html2canvas(cible, {
+        scale: 2, // Améliore la résolution de l'image
+        useCORS: true // Permet de charger des images externes si besoin
+    }).then(canvas => {
+        // Convertir en data URL
+        const donneesImage = canvas.toDataURL("image/png");
+        // Créer un lien temporaire pour forcer le téléchargement
+        const lien = document.createElement('a');
+        lien.href = donneesImage;
+        lien.download = 'Mon_Document.png';
+        document.body.appendChild(lien);
+        lien.click();
+        document.body.removeChild(lien);
+    }).catch(err => console.error("Erreur lors de la capture de l'image:", err));
+}
+
+// Fonction pour télécharger l'élément cible (#preview) sous forme de PDF
+function telechargerPDF() {
+    const cible = document.getElementById('preview');
+    html2canvas(cible, {
+        scale: 2, 
+        useCORS: true
+    }).then(canvas => {
+        const donneesImage = canvas.toDataURL('image/png');
+        
+        // On importe jsPDF depuis l'objet window (chargé via CDN)
+        const { jsPDF } = window.jspdf;
+        // Création du document PDF (portrait, millimètres, format A4)
+        const docPDF = new jsPDF('p', 'mm', 'a4');
+        
+        // Dimensions de la page PDF
+        const largeurPDF = docPDF.internal.pageSize.getWidth();
+        // Hauteur proportionnelle à l'image
+        const hauteurPDF = (canvas.height * largeurPDF) / canvas.width;
+        
+        // Insérer l'image dans le PDF aux coordonnées (0,0)
+        docPDF.addImage(donneesImage, 'PNG', 0, 0, largeurPDF, hauteurPDF);
+        // Sauvegarder le fichier PDF
+        docPDF.save('Mon_Document.pdf');
+    }).catch(err => console.error("Erreur lors de la création du PDF:", err));
+}
+
+// Affichage forcé pour la démonstration des boutons
+document.getElementById('mainLayout').style.display = 'grid';
+document.getElementById('previewActions').style.display = 'flex';
+
+// ... (le reste de ton code JavaScript pour la logique du formulaire) ...
+</script>
+</body>
+</html>
