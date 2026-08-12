@@ -1629,6 +1629,67 @@ function startWizard(prefill){
 document.querySelector('.brand-logo').src = ILLUS.logo;
 renderAccueil();
 
+// Fonction unique pour exporter en PDF ou en PNG
+function exportCanvas(format) {
+    const cible = document.getElementById('preview');
+    
+    // html2canvas capture le rendu visuel de la div
+    html2canvas(cible, {
+        scale: 2, // Améliore la résolution de l'image
+        useCORS: true // Permet de charger des images externes si besoin
+    }).then(canvas => {
+        const donneesImage = canvas.toDataURL('image/png');
+        
+        if (format === 'png') {
+            // Logique pour le téléchargement de l'image PNG
+            const lien = document.createElement('a');
+            lien.href = donneesImage;
+            lien.download = 'Mon_CV.png';
+            document.body.appendChild(lien);
+            lien.click();
+            document.body.removeChild(lien);
+        } else if (format === 'pdf') {
+            // Logique pour le téléchargement du PDF au format A4
+            const { jsPDF } = window.jspdf;
+            const docPDF = new jsPDF('p', 'mm', 'a4');
+            
+            // Dimensions de la page PDF A4
+            const largeurA4 = docPDF.internal.pageSize.getWidth();
+            const hauteurA4 = docPDF.internal.pageSize.getHeight();
+            
+            // Calcul du ratio pour ajuster l'image au format A4 sans déformation
+            const ratioCanvas = canvas.height / canvas.width;
+            let largeurImage = largeurA4;
+            let hauteurImage = largeurA4 * ratioCanvas;
+            
+            // Si la hauteur de l'image dépasse la hauteur de la page A4, on ajuste
+            if (hauteurImage > hauteurA4) {
+                hauteurImage = hauteurA4;
+                largeurImage = hauteurImage / ratioCanvas;
+            }
+            
+            // Calcul pour centrer l'image horizontalement (si elle est plus étroite)
+            const xOffset = (largeurA4 - largeurImage) / 2;
+            
+            // Insérer l'image dans le PDF avec les dimensions ajustées
+            docPDF.addImage(donneesImage, 'PNG', xOffset, 0, largeurImage, hauteurImage);
+            
+            // Sauvegarder le fichier PDF
+            docPDF.save('Mon_CV.pdf');
+        }
+    }).catch(err => console.error("Erreur lors de la création du fichier:", err));
+}
+
+// Fonction pour afficher/masquer le menu alternatif (puisque tu l'as ajouté dans ton HTML)
+function toggleAltExport() {
+    const boutons = document.getElementById('altExportButtons');
+    if (boutons.style.display === 'none') {
+        boutons.style.display = 'flex';
+    } else {
+        boutons.style.display = 'none';
+    }
+}
+
 </script>
 </body>
 </html>
