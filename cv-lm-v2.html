@@ -4,12 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mon CV de stage</title>
-<!-- Generation directe du PDF (texte selectionnable, via jsPDF.html + html2canvas).
-     Charge depuis un CDN : necessite une connexion. Si le reseau de l'etablissement
-     bloque ces adresses, le bouton de telechargement direct se masque tout seul
-     et le bouton "Version imprimable" prend le relais. -->
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,700;0,800;0,900;1,400&display=swap');
 
@@ -143,10 +137,6 @@ input[type=text],input[type=email],input[type=tel],textarea,select{
   font-family:'Montserrat',sans-serif;font-weight:400;font-size:14px;color:var(--ink);background:#FCFCFC;
 }
 input:focus,textarea:focus,select:focus{outline:none;border-color:var(--rouge);}
-/* Sous 16px, Safari iOS zoome la page a chaque fois qu'on touche un champ. */
-@media (max-width:920px){
-  input[type=text],input[type=email],input[type=tel],textarea,select{font-size:16px;}
-}
 textarea{resize:vertical;min-height:80px;line-height:1.5;}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 @media (max-width:520px){.row2{grid-template-columns:1fr;}}
@@ -178,29 +168,13 @@ button.btn:disabled{opacity:0.35;cursor:not-allowed;}
 
 /* PREVIEW */
 .preview-wrap{position:sticky;top:20px;min-width:0;}
-.header-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.reset-btn{font-size:12.5px;padding:8px 14px;}
-.paper-scroll{position:relative;}
-.preview-zoom{display:none;width:100%;margin-top:10px;}
-@media (max-width:920px){ .preview-zoom{display:block;} .preview-wrap{position:static;} }
-.restore-banner{
-  background:white;border:2px solid var(--jaune);border-radius:14px;padding:16px 18px;
-  margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
-  box-shadow:var(--card-shadow);
-}
-.restore-text{font-size:13.5px;line-height:1.55;font-weight:400;}
-.restore-actions{display:flex;gap:10px;flex-wrap:wrap;}
-.preview-actions{display:flex;gap:10px;margin-bottom:12px;justify-content:flex-end;flex-wrap:wrap;}
+.preview-actions{display:flex;gap:10px;margin-bottom:12px;justify-content:flex-end;}
 .preview-actions button{
   display:flex;align-items:center;gap:6px;font-family:'Montserrat',sans-serif;
 }
 .paper{
   background:white;border-radius:4px;box-shadow:var(--card-shadow);
   padding:0;min-height:400px;position:relative;overflow:hidden;
-  /* Proportions d'une A4 portrait : la page garde sa hauteur meme si le contenu
-     est court, ce qui permet a la colonne laterale de descendre jusqu'en bas. */
-  aspect-ratio:794/1123;
-  display:flex;flex-direction:column;
   background-image: linear-gradient(90deg, transparent 46px, var(--grid) 46px, var(--grid) 48px, transparent 48px);
 }
 .paper::before{
@@ -212,7 +186,7 @@ button.btn:disabled{opacity:0.35;cursor:not-allowed;}
 }
 
 /* CV TEMPLATE - modern sidebar layout */
-.cv-shell{background:none;display:flex;flex-direction:column;flex:1;}
+.cv-shell{background:none;}
 .cv-band{padding:28px 32px 22px;display:flex;align-items:center;gap:20px;}
 .cv-avatar{
   flex:0 0 76px;height:76px;border-radius:50%;background:var(--rouge);color:white;
@@ -225,7 +199,7 @@ button.btn:disabled{opacity:0.35;cursor:not-allowed;}
   display:inline-block;margin-top:8px;background:var(--rouge);color:white;
   font-weight:700;font-size:13px;padding:5px 13px;border-radius:6px;text-transform:uppercase;letter-spacing:.02em;overflow-wrap:anywhere;
 }
-.cv-columns{display:flex;align-items:stretch;flex:1;}
+.cv-columns{display:flex;align-items:stretch;}
 .cv-sidebar{flex:0 0 34%;}
 .cv-main-col{flex:1 1 66%;min-width:0;}
 .cv-sidebar{background:var(--cv-sidebar,var(--bleu-ateliers));color:white;padding:20px 20px 26px;}
@@ -256,7 +230,7 @@ button.btn:disabled{opacity:0.35;cursor:not-allowed;}
 .empty-hint{color:#B7B7B7;font-style:italic;font-size:13px;font-weight:400;overflow-wrap:anywhere;}
 
 /* LM TEMPLATE */
-.lm-shell{padding:34px 32px;flex:1;}
+.lm-shell{padding:34px 32px;}
 .lm-topline{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-soft);margin-bottom:26px;font-weight:400;}
 .lm-dest{white-space:pre-line;font-size:13px;font-weight:400;}
 .lm-date{text-align:right;}
@@ -362,8 +336,7 @@ button.btn:disabled{opacity:0.35;cursor:not-allowed;}
 @media (max-width:640px){.result-card{flex-direction:column;}.result-illus{flex:0 0 auto;width:110px;}}
 
 @media print{
-  html,body{background:white;margin:0!important;padding:0!important;}
-  #printArea{overflow:hidden;}
+  body{background:white;}
   .app > *:not(#printArea){display:none!important;}
   #printArea{display:block!important;}
   .paper{box-shadow:none;}
@@ -381,12 +354,9 @@ button.btn:disabled{opacity:0.35;cursor:not-allowed;}
         <p>Prépare ton CV et ta lettre pour ton stage de 3e, étape par étape !</p>
       </div>
     </div>
-    <div class="header-tools">
-      <div class="mode-switch" id="modeSwitch" style="display:none;">
-        <button id="tabCV" class="active" onclick="setMode('cv')">📄 Mon CV</button>
-        <button id="tabLM" onclick="setMode('lm')">✉️ Ma lettre</button>
-      </div>
-      <button type="button" class="btn btn-ghost reset-btn" id="resetBtn" style="display:none;" onclick="resetAll()">🗑️ Recommencer</button>
+    <div class="mode-switch" id="modeSwitch" style="display:none;">
+      <button id="tabCV" class="active" onclick="setMode('cv')">📄 Mon CV</button>
+      <button id="tabLM" onclick="setMode('lm')">✉️ Ma lettre</button>
     </div>
   </div>
 
@@ -399,13 +369,11 @@ button.btn:disabled{opacity:0.35;cursor:not-allowed;}
 
     <div class="preview-wrap">
       <div class="preview-actions" id="previewActions" style="display:none;">
-        <button class="btn btn-primary" id="pdfBtn" onclick="downloadPDF()">📥 Télécharger mon PDF</button>
-        <button class="btn btn-ghost" id="printBtn" onclick="printDoc()">🖨️ Version imprimable</button>
+        <button class="btn btn-primary" onclick="printDoc()">🖨️ Enregistrer en PDF</button>
       </div>
-      <div class="preview-hint" id="previewHint" style="display:none;"><b>« Télécharger mon PDF »</b> enregistre directement le fichier sur ton appareil, sans rien régler. Si ce bouton n'apparaît pas ou ne fonctionne pas, utilise <b>« Version imprimable »</b> : dans la fenêtre qui s'ouvre : choisis <b>« Enregistrer au format PDF »</b>, puis dans « Plus de paramètres » décoche <b>« En-têtes et pieds de page »</b>, coche <b>« Graphismes d'arrière-plan »</b>, et mets <b>« Marges »</b> sur <b>« Aucune »</b> (indispensable : sinon le navigateur ajoute son propre espace, le bandeau bleu ne descend plus jusqu'en bas et une page blanche peut s'ajouter). Ce sont des réglages du navigateur (pas de l'outil) : une fois faits, ils resteront pour les prochains enregistrements sur cet ordinateur.</div>
+      <div class="preview-hint" id="previewHint" style="display:none;">Dans la fenêtre qui s'ouvre : choisis <b>« Enregistrer au format PDF »</b>, puis dans « Plus de paramètres » décoche <b>« En-têtes et pieds de page »</b>, coche <b>« Graphismes d'arrière-plan »</b>, et mets <b>« Marges »</b> sur <b>« Aucune »</b> (sinon le navigateur ajoute son propre grand espace en haut). Ce sont des réglages du navigateur (pas de l'outil) : une fois faits, ils resteront pour les prochains enregistrements sur cet ordinateur.</div>
       <div class="preview-label" id="previewLabel">👀 Aperçu de ton document — tu pourras l'enregistrer en PDF à la toute dernière étape.</div>
-      <div class="paper-scroll" id="paperScroll"><div class="paper" id="preview"></div></div>
-      <button type="button" class="btn btn-ghost preview-zoom" id="previewZoomBtn" onclick="togglePreviewZoom()">🔍 Agrandir l'aperçu</button>
+      <div class="paper" id="preview"></div>
       <div class="recap-note">Aperçu mis à jour automatiquement au fil de tes réponses.</div>
     </div>
   </div>
@@ -423,13 +391,12 @@ const state = {
   prenom:'', nom:'', classe:'', ville:'', email:'', telephone:'',
   etablissement:'', matieres:'',
   qualites:[], competences:[], langues:[], numerique:[],
-  interets:'',
+  interets:'', engagements:'',
   experiences:[],
-  metierVise:'', entrepriseStage:'',
+  metierVise:'', secteurStage:'', entrepriseStage:'',
   lmDest:'', lmMotivation:'', lmAtouts:'',
   photoData:'',
   qualiteLibre:'', competenceLibre:'', langueLibre:'', numeriqueLibre:'',
-  genre:'', // '' = les deux formes, 'f' = feminin, 'm' = masculin
   colorTheme:0,
   profilTexte:'',
   aideQui:'', aideMotivation:'', aideRecherche:''
@@ -527,25 +494,7 @@ let quizStep = 0;
 let quizTags = [];
 
 /* ---------------- OPTIONS ---------------- */
-// Chaque qualite est stockee par son identifiant (la forme masculine), et affichee
-// selon le choix d'ecriture de l'eleve : feminin, masculin, ou les deux formes.
-const QUALITES = [
-  {m:'Curieux',      f:'Curieuse',      n:'Curieux(se)'},
-  {m:'Sérieux',      f:'Sérieuse',      n:'Sérieux(se)'},
-  {m:'Créatif',      f:'Créative',      n:'Créatif(ve)'},
-  {m:'Sportif',      f:'Sportive',      n:'Sportif(ve)'},
-  {m:'Organisé',     f:'Organisée',     n:'Organisé(e)'},
-  {m:'Patient',      f:'Patiente',      n:'Patient(e)'},
-  {m:"À l'écoute"},
-  {m:'Dynamique'},
-  {m:'Souriant',     f:'Souriante',     n:'Souriant(e)'},
-  {m:'Débrouillard', f:'Débrouillarde', n:'Débrouillard(e)'}
-];
-const GENRES = [
-  {id:'f', label:'Au féminin',     ex:'Curieuse, Organisée'},
-  {id:'m', label:'Au masculin',    ex:'Curieux, Organisé'},
-  {id:'',  label:'Les deux formes', ex:'Curieux(se), Organisé(e)'}
-];
+const QUALITES = ['Curieux(se)','Sérieux(se)','Créatif(ve)','Sportif(ve)','Organisé(e)','Patient(e)','À l\'écoute','Dynamique','Souriant(e)','Débrouillard(e)'];
 const COMPETENCES = ['Travail en équipe','Prise de parole','Bricolage/manuel','Dessin','Écriture','Cuisine','Musique','Aide aux autres','Sens de l\'organisation','Tondre la pelouse','Garder des enfants (frères, sœurs, cousins…)','Aider à la maison (ménage, cuisine)','Faire les courses','S\'occuper d\'animaux','Aider au jardin ou au potager','Conduire un engin agricole (accompagné·e)'];
 const LANGUES = ['Français','Anglais','Espagnol','Allemand','Italien','Arabe','Autre langue parlée à la maison'];
 const NUMERIQUE = ['Traitement de texte (Word)','Tableur (Excel)','Diaporama (PowerPoint/Canva)','Montage vidéo/photo','Réseaux sociaux','Jeux vidéo/informatique'];
@@ -578,9 +527,6 @@ const cvSteps = [
         <div class="field"><label>Nom</label>
           <input type="text" value="${esc(state.nom)}" oninput="update('nom',this.value)" placeholder="Ex : Diallo"></div>
       </div>
-      <div class="field"><label>Comment veux-tu que ton CV soit écrit ?</label>
-        <div class="chip-group">${genreChips()}</div>
-        <span class="hint">Ça évite les formes comme « Curieux(se) » sur ton CV. Tu peux changer d'avis à tout moment.</span></div>
       <div class="row2">
         <div class="field"><label>Classe</label>
           <input type="text" value="${esc(state.classe)}" oninput="update('classe',this.value)" placeholder="Ex : 3e2"></div>
@@ -594,7 +540,7 @@ const cvSteps = [
         ${showAideProfil ? `
         <div class="aide-box">
           <div class="field"><label>Comment te décrirais-tu en 2-3 mots ?</label>
-            <input type="text" value="${esc(state.aideQui)}" oninput="update('aideQui',this.value)" placeholder="Ex : ${gTxt("sérieux et motivé","sérieuse et motivée","sérieux(se) et motivé(e)")}"></div>
+            <input type="text" value="${esc(state.aideQui)}" oninput="update('aideQui',this.value)" placeholder="Ex : sérieux(se) et motivé(e)"></div>
           <div class="field"><label>Qu'est-ce qui t'intéresse dans ce domaine ?</label>
             <input type="text" value="${esc(state.aideMotivation)}" oninput="update('aideMotivation',this.value)" placeholder="Ex : je m'intéresse aux animaux depuis toujours"></div>
           <div class="field"><label>Qu'espères-tu découvrir pendant ce stage ?</label>
@@ -638,9 +584,9 @@ const cvSteps = [
     render(){
       return `
       <div class="field"><label>Tes qualités</label>
-        <div class="chip-group">${chipsG(QUALITES,'qualites')}</div></div>
+        <div class="chip-group">${chips(QUALITES,'qualites')}</div></div>
       <div class="field"><label>Une autre qualité ? <span class="hint">(facultatif)</span></label>
-        <input type="text" maxlength="30" value="${esc(state.qualiteLibre)}" oninput="update('qualiteLibre',this.value)" placeholder="Ex : ${gTxt("Persévérant","Persévérante","Persévérant(e)")}"></div>
+        <input type="text" maxlength="30" value="${esc(state.qualiteLibre)}" oninput="update('qualiteLibre',this.value)" placeholder="Ex : Persévérant(e)"></div>
       <div class="field"><label>Ce que tu sais faire</label>
         <div class="chip-group">${chips(COMPETENCES,'competences')}</div></div>
       <div class="field"><label>Une autre compétence ? <span class="hint">(facultatif)</span></label>
@@ -755,56 +701,25 @@ const lmSteps = [
     title:"Ce que tu peux apporter",
     illus:"handshake",
     sub:"Tes qualités mises en avant pour ce stage précis.",
-    tip:"<b>Astuce :</b> relie une ou deux de tes qualités (vues dans ton CV) à ce stage. Ex : 'J'aime travailler en équipe et j'ai le sens du contact.'",
+    tip:"<b>Astuce :</b> relie une ou deux de tes qualités (vues dans ton CV) à ce stage. Ex : 'Je suis organisé(e) et j'aime le contact avec les gens.'",
     render(){
       return `
       <div class="field"><label>Tes atouts pour ce stage</label>
-        <textarea oninput="update('lmAtouts',this.value)" placeholder="Ex : ${gTxt("Je suis sérieux, curieux","Je suis sérieuse, curieuse","Je suis sérieux(se), curieux(se)")} et j'apprends vite.">${esc(state.lmAtouts)}</textarea></div>`;
+        <textarea oninput="update('lmAtouts',this.value)" placeholder="Ex : Je suis sérieux(se), curieux(se) et j'apprends vite.">${esc(state.lmAtouts)}</textarea></div>`;
     }
   }
 ];
 
 /* ---------------- HELPERS ---------------- */
-function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(s){return (s||'').replace(/</g,'&lt;');}
 function update(key,val){state[key]=val; renderPreview();}
-const PHOTO_MAX = 320; // px sur le plus grand cote : largement suffisant pour un CV imprime
 function handlePhoto(input){
   const file = input.files && input.files[0];
   if(!file) return;
-  if(!/^image\//.test(file.type)){
-    alert("Ce fichier n'est pas une image.");
-    input.value = '';
-    return;
-  }
   const reader = new FileReader();
   reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      // On redimensionne avant de stocker : une photo de telephone brute pese
-      // plusieurs Mo, ce qui alourdit l'apercu et sature la sauvegarde locale.
-      const ratio = Math.min(1, PHOTO_MAX / Math.max(img.width, img.height));
-      const w = Math.max(1, Math.round(img.width * ratio));
-      const h = Math.max(1, Math.round(img.height * ratio));
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, w, h);
-      ctx.drawImage(img, 0, 0, w, h);
-      try{ state.photoData = canvas.toDataURL('image/jpeg', 0.82); }
-      catch(err){ state.photoData = e.target.result; }
-      input.value = '';
-      renderForm(); renderPreview();
-    };
-    img.onerror = () => {
-      alert("Cette image n'a pas pu etre lue. Essaie une autre photo.");
-      input.value = '';
-    };
-    img.src = e.target.result;
-  };
-  reader.onerror = () => {
-    alert("Le fichier n'a pas pu etre lu.");
-    input.value = '';
+    state.photoData = e.target.result;
+    renderForm(); renderPreview();
   };
   reader.readAsDataURL(file);
 }
@@ -845,32 +760,6 @@ function genererProfilTexte(){
     renderForm(); renderPreview();
   }
 }
-/* ---------------- ACCORD EN GENRE ---------------- */
-// gTxt('masculin','feminin','les deux') : renvoie la forme correspondant au choix.
-function gTxt(m, f, n){
-  if(state.genre==='m') return m;
-  if(state.genre==='f') return f;
-  return n;
-}
-// Affichage d'une qualite a partir de son identifiant.
-function gLabel(id){
-  const q = QUALITES.find(x=>x.m===id);
-  if(!q) return id; // qualite saisie librement par l'eleve
-  if(!q.f) return q.m; // mot invariable (Dynamique, A l'ecoute)
-  return gTxt(q.m, q.f, q.n);
-}
-function setGenre(g){
-  state.genre = g;
-  renderForm(); renderPreview();
-}
-function genreChips(){
-  return GENRES.map(g=>`<span class="chip ${state.genre===g.id?'selected':''}" onclick="setGenre('${g.id}')">${g.label} <span style="opacity:.7;font-weight:400;">· ${g.ex}</span></span>`).join('');
-}
-// Variante de chips() pour les listes accordables : la valeur stockee est l'identifiant.
-function chipsG(list,key){
-  return list.map(o=>`<span class="chip ${state[key].includes(o.m)?'selected':''}" onclick="toggleChip('${key}','${o.m.replace(/'/g,"\\'")}')">${gLabel(o.m)}</span>`).join('');
-}
-
 function toggleChip(key,val){
   const arr = state[key];
   const i = arr.indexOf(val);
@@ -965,8 +854,6 @@ function renderPreview(){
   const el = document.getElementById('preview');
   el.innerHTML = mode==='cv'?cvHTML():lmHTML();
   applyTheme(el, state.colorTheme);
-  fitPreview();
-  scheduleSave();
 }
 
 /* ---------------- PREVIEW CHROME (actions) ---------------- */
@@ -1005,8 +892,7 @@ function cvHTML(){
   const tagBlock = (arr,empty)=> arr.length? `<div class="cv-tags">${arr.map(v=>`<span>${esc(v)}</span>`).join('')}</div>` : `<p class="empty-hint">${empty}</p>`;
   const sideTagBlock = (arr,empty)=> arr.length? `<div class="cv-side-tags">${arr.map(v=>`<span>${esc(v)}</span>`).join('')}</div>` : `<p class="cv-side-empty">${empty}</p>`;
 
-  const qualitesLabels = state.qualites.map(gLabel);
-  const qualitesAll = state.qualiteLibre.trim() ? [...qualitesLabels, state.qualiteLibre.trim()] : qualitesLabels;
+  const qualitesAll = state.qualiteLibre.trim() ? [...state.qualites, state.qualiteLibre.trim()] : state.qualites;
   const competencesAll = state.competenceLibre.trim() ? [...state.competences, state.competenceLibre.trim()] : state.competences;
   const languesAll = state.langueLibre.trim() ? [...state.langues, state.langueLibre.trim()] : state.langues;
   const numeriqueAll = state.numeriqueLibre.trim() ? [...state.numerique, state.numeriqueLibre.trim()] : state.numerique;
@@ -1059,13 +945,13 @@ function cvHTML(){
 function lmHTML(){
   const nomComplet = (state.prenom||'Ton prénom')+' '+(state.nom||'').toUpperCase();
   const today = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
-  const metier = state.metierVise ? ` en tant que ${gTxt('futur','future','futur(e)')} ${esc(state.metierVise)}` : '';
+  const metier = state.metierVise ? ` en tant que futur(e) ${state.metierVise}` : '';
 
   let corps = '';
   corps += `Madame, Monsieur,\n\n`;
-  corps += `Je suis élève de ${esc(state.classe)||'3e'} au collège ${esc(state.etablissement)||'...'}, et je me permets de vous adresser cette lettre afin de solliciter un stage d'observation${state.entrepriseStage?` au sein de ${esc(state.entrepriseStage)}`:''}.\n\n`;
-  corps += state.lmMotivation ? `${esc(state.lmMotivation)}\n\n` : `[Explique ici pourquoi ce secteur t'intéresse — étape 2]\n\n`;
-  corps += state.lmAtouts ? `${esc(state.lmAtouts)}\n\n` : `[Explique ici ce que tu peux apporter — étape 3]\n\n`;
+  corps += `Je suis élève de ${state.classe||'3e'} au collège ${state.etablissement||'...'}, et je me permets de vous adresser cette lettre afin de solliciter un stage d'observation${state.entrepriseStage?` au sein de ${state.entrepriseStage}`:''}.\n\n`;
+  corps += state.lmMotivation ? `${state.lmMotivation}\n\n` : `[Explique ici pourquoi ce secteur t'intéresse — étape 2]\n\n`;
+  corps += state.lmAtouts ? `${state.lmAtouts}\n\n` : `[Explique ici ce que tu peux apporter — étape 3]\n\n`;
   corps += `Je reste à votre disposition pour tout renseignement complémentaire et je vous remercie par avance de l'attention portée à ma demande.\n\n`;
 
   return `
@@ -1092,14 +978,10 @@ function buildPrintArea(){
   }
   // Marge à 0 : le navigateur applique déjà sa propre marge par défaut à l'impression.
   // Ajouter la nôtre par-dessus créait le grand espace vide en haut de page.
-  // size: A4 portrait (et pas seulement "portrait") pour que la boite en mm
-  // corresponde bien au format demande au navigateur.
-  pageStyle.textContent = `@page{ size: A4 portrait; margin: 0; }`;
+  pageStyle.textContent = `@page{ size: portrait; margin: 0; }`;
 
   const wrapper = document.createElement('div');
   wrapper.style.padding = '0';
-  wrapper.style.display = 'flex';
-  wrapper.style.flexDirection = 'column';
   wrapper.style.fontFamily="'Montserrat', sans-serif";
   applyTheme(wrapper, state.colorTheme);
   wrapper.innerHTML = document.getElementById('preview').innerHTML;
@@ -1108,51 +990,31 @@ function buildPrintArea(){
   area.appendChild(wrapper);
   return area;
 }
-// Une A4 portrait mesure 210 x 297 mm, soit 793,7 x 1122,5 px CSS a 96 dpi.
-// Arrondir au-dessus (794 / 1123) suffit a faire deborder la page et a creer
-// une seconde page vide : on reste donc legerement en dessous.
-const A4_W = 793;          // largeur de mesure, en px
-const A4_H_BUDGET = 1116;  // hauteur utile de mesure, en px (marge de securite)
-const PAGE_W_MM = 210;     // largeur reelle de la boite imprimee
-const PAGE_H_MM = 296.5;   // hauteur reelle : 0,5 mm sous la page, pour absorber les arrondis
 function printDoc(){
   const area = buildPrintArea();
   const isCV = mode==='cv';
 
   if(isCV){
-    // Une A4 portrait mesure 794 x 1123 px a 96 dpi, la resolution de reference
-    // du CSS pour l'impression. On construit une boite exactement a ces dimensions
-    // pour que la colonne laterale descende jusqu'au bas de la page.
+    // On mesure la hauteur réelle du contenu (invisible à l'écran, hors du flux normal)
+    // et on réduit le texte juste ce qu'il faut pour tenir sur une seule page A4 —
+    // plutôt que de fixer une taille unique qui convient parfois et déborde parfois.
     const wrapper = area.firstElementChild;
     area.style.display = 'block';
     area.style.position = 'fixed';
     area.style.left = '-9999px';
     area.style.top = '0';
-
-    // 1) mesure : hauteur libre, sans contrainte, a la largeur d'une A4
-    wrapper.style.display = 'block';
-    wrapper.style.width = A4_W + 'px';
-    wrapper.style.height = 'auto';
+    wrapper.style.width = '760px';
     wrapper.style.zoom = '1';
+
     const contentHeight = wrapper.scrollHeight;
-
-    // 2) reduction juste ce qu'il faut si le contenu depasse une page
-    const scale = contentHeight > A4_H_BUDGET ? Math.max(0.6, A4_H_BUDGET / contentHeight) : 1;
-
-    // 3) boite agrandie a l'inverse du zoom : apres reduction elle occupe
-    //    exactement une page, et la colonne laterale descend jusqu'en bas.
-    //    Dimensions en mm : le navigateur n'a plus a convertir depuis des px,
-    //    donc plus d'arrondi qui fasse deborder d'un demi-pixel sur une 2e page.
-    //    overflow:hidden garantit qu'aucun depassement ne cree de page vide.
-    wrapper.style.display = 'flex';
-    wrapper.style.overflow = 'hidden';
-    wrapper.style.width = 'calc(' + PAGE_W_MM + 'mm / ' + scale + ')';
-    wrapper.style.height = 'calc(' + PAGE_H_MM + 'mm / ' + scale + ')';
+    const targetHeight = 880; // budget en px pour une page A4 portrait (marge de sécurité incluse)
+    const scale = contentHeight > targetHeight ? Math.max(0.62, targetHeight / contentHeight) : 1;
     wrapper.style.zoom = scale;
 
     area.style.position = '';
     area.style.left = '';
     area.style.top = '';
+    wrapper.style.width = '';
   }
 
   const prevTitle = document.title;
@@ -1163,154 +1025,13 @@ function printDoc(){
   area.style.display = 'none';
 }
 
-/* ---------------- TÉLÉCHARGEMENT DIRECT DU PDF ---------------- */
-// jsPDF.html() fait dessiner la page par html2canvas dans le contexte 2D de jsPDF :
-// chaque bloc de texte devient un vrai texte PDF (selectionnable), pas une image.
-// Le rapport width/windowWidth donne l'echelle px -> mm : en construisant une boite
-// de W px de large pour 210 mm de page, tout le contenu tient sur une seule page.
-// Le rendu PDF de jsPDF a trois limites qu'on corrige sur une copie du document,
-// juste avant l'export. L'affichage a l'ecran et l'impression navigateur ne sont
-// pas touches : ils gerent tres bien ces trois cas.
-const PDF_FONT = 'Helvetica, Arial, sans-serif';
-function mixHex(hex, ratio){
-  // melange une couleur #RRGGBB avec du blanc (ratio = part de blanc)
-  const m = /^#?([0-9a-f]{6})$/i.exec((hex||'').trim());
-  if(!m) return '#FFFFFF';
-  const v = parseInt(m[1],16);
-  const mix = c => Math.round(c + (255-c)*ratio);
-  const r = mix((v>>16)&255), g = mix((v>>8)&255), b = mix(v&255);
-  return '#' + [r,g,b].map(c=>c.toString(16).padStart(2,'0')).join('').toUpperCase();
-}
-function sanitizeForPDF(root){
-  // 1) Les polices PDF standard ne contiennent aucun emoji : ils ressortent en
-  //    caracteres parasites (Ø=ÞK). On les retire du document exporte.
-  const EMOJI = /[\p{Extended_Pictographic}\u{FE0F}\u{200D}\u{20E3}]/gu;
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
-  const textNodes = [];
-  while(walker.nextNode()) textNodes.push(walker.currentNode);
-  textNodes.forEach(n => {
-    if(!EMOJI.test(n.nodeValue)) return;
-    n.nodeValue = n.nodeValue.replace(EMOJI,'').replace(/^\s+/,'');
-  });
-
-  // 2) jsPDF ignore la transparence des couleurs : un fond rgba(255,255,255,0.14)
-  //    devient blanc opaque, donc du texte blanc sur blanc. On calcule la couleur
-  //    opaque equivalente a partir de la couleur de la colonne choisie.
-  const sidebar = themeColors(state.colorTheme)[0];
-  root.querySelectorAll('.cv-side-tags span').forEach(el => {
-    el.style.background = mixHex(sidebar, 0.16);
-  });
-  root.querySelectorAll('.cv-side-block h4').forEach(el => {
-    el.style.borderBottomColor = mixHex(sidebar, 0.35);
-  });
-  root.querySelectorAll('.cv-side-empty').forEach(el => {
-    el.style.color = mixHex(sidebar, 0.6);
-  });
-
-  // 3) L'interlettrage est applique lettre par lettre par html2canvas et deforme
-  //    les titres en majuscules. On le neutralise sur le document exporte.
-  root.querySelectorAll('.cv-side-block h4, .cv-section h3, .cv-target').forEach(el => {
-    el.style.letterSpacing = 'normal';
-  });
-
-  // 4) html2canvas decoupe le texte en segments (aux endroits ou une ligne peut
-  //    etre coupee : apres un "/", avant une parenthese...) et donne a jsPDF la
-  //    position mesuree par le NAVIGATEUR, qui affiche du Montserrat. jsPDF
-  //    redessine ensuite avec sa police interne Helvetica, dont les lettres n'ont
-  //    pas la meme largeur : chaque segment commence au bon endroit mais finit
-  //    trop tot, d'ou les espaces parasites ("ngomous @fdg .cf").
-  //    On fait donc mesurer le navigateur dans la meme police que celle utilisee
-  //    par jsPDF. Arial est concue avec les memes largeurs qu'Helvetica.
-  root.style.fontFamily = PDF_FONT;
-  root.querySelectorAll('*').forEach(el => { el.style.fontFamily = PDF_FONT; });
-}
-function pdfLibsReady(){
-  return !!(window.jspdf && window.jspdf.jsPDF && window.html2canvas);
-}
-function pdfFileName(){
-  const nom = `${state.prenom||''} ${state.nom||''}`.trim() || 'Document';
-  const type = mode==='cv' ? 'CV' : 'Lettre de motivation';
-  return `${nom} - ${type}.pdf`.replace(/[\\/:*?"<>|]/g,'-');
-}
-async function downloadPDF(){
-  const btn = document.getElementById('pdfBtn');
-  if(!pdfLibsReady()){
-    alert("Le module de téléchargement n'a pas pu se charger (connexion ou filtrage du réseau).\n\nUtilise le bouton « Version imprimable » juste à côté.");
-    return;
-  }
-  const area = buildPrintArea();
-  const wrapper = area.firstElementChild;
-  wrapper.style.background = '#FFFFFF';
-  sanitizeForPDF(wrapper);
-
-  // Mesure hors ecran, puis boite mise a l'echelle pour tenir sur une page.
-  area.style.display = 'block';
-  area.style.position = 'fixed';
-  area.style.left = '-9999px';
-  area.style.top = '0';
-  wrapper.style.display = 'block';
-  wrapper.style.width = A4_W + 'px';
-  wrapper.style.height = 'auto';
-  const contentHeight = wrapper.scrollHeight;
-  const s = contentHeight > A4_H_BUDGET ? Math.max(0.6, A4_H_BUDGET / contentHeight) : 1;
-  const boxW = A4_W / s, boxH = A4_H_BUDGET / s;
-  wrapper.style.display = 'flex';
-  wrapper.style.flexDirection = 'column';
-  wrapper.style.overflow = 'hidden';
-  wrapper.style.width = boxW + 'px';
-  wrapper.style.height = boxH + 'px';
-
-  const labelInitial = btn ? btn.textContent : '';
-  if(btn){ btn.disabled = true; btn.textContent = '⏳ Génération…'; }
-  try{
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation:'p', unit:'mm', format:'a4' });
-    await new Promise((resolve, reject) => {
-      const worker = doc.html(wrapper, {
-        x: 0, y: 0,
-        width: 210,          // largeur de la page, en mm
-        windowWidth: boxW,   // largeur de la source, en px
-        margin: 0,
-        autoPaging: false,   // une seule page : jamais de page vide en trop
-        // NE JAMAIS passer "scale" ici : jsPDF calcule lui-meme l'echelle px -> mm
-        // (width / windowWidth) et la place dans ces memes options, ou nos valeurs
-        // sont fusionnees APRES les siennes. Un scale:1 ecrase ce calcul, le CV est
-        // alors dessine a 1 px = 1 mm et deborde sur plusieurs pages.
-        html2canvas: { useCORS:true, logging:false, backgroundColor:'#FFFFFF' },
-        callback: () => resolve()
-      });
-      // jsPDF renvoie un objet "thenable" : on remonte les erreurs eventuelles.
-      if(worker && typeof worker.catch === 'function') worker.catch(reject);
-    });
-    doc.save(pdfFileName());
-  }catch(err){
-    console.error(err);
-    alert("La génération du PDF a échoué. Tu peux utiliser le bouton « Version imprimable ».");
-  }finally{
-    if(btn){ btn.disabled = false; btn.textContent = labelInitial; }
-    area.style.display = 'none';
-    area.style.position = '';
-    area.style.left = '';
-    area.style.top = '';
-  }
-}
-// Si le CDN est inaccessible, on masque le bouton direct plutot que de laisser
-// l'eleve cliquer sur un bouton qui ne fait rien.
-window.addEventListener('load', () => {
-  if(pdfLibsReady()) return;
-  const b = document.getElementById('pdfBtn');
-  const p = document.getElementById('printBtn');
-  if(b) b.style.display = 'none';
-  if(p){ p.textContent = '🖨️ Enregistrer en PDF'; p.classList.remove('btn-ghost'); p.classList.add('btn-primary'); }
-});
-
 /* ---------------- ACCUEIL : QUIZ MÉTIER ---------------- */
 function renderAccueil(){
   let html;
   if(domaineChoisi) html = accueilResultHTML();
   else if(quizStep>0 || domaineViaQuiz) html = accueilQuizHTML();
   else html = accueilQuestionHTML();
-  document.getElementById('accueilScreen').innerHTML = restoreBannerHTML() + html;
+  document.getElementById('accueilScreen').innerHTML = html;
 }
 function accueilQuestionHTML(){
   return `
@@ -1377,8 +1098,7 @@ function answerQuiz(optionIndex){
       if(score>bestScore){ bestScore=score; best=d; }
     });
     domaineChoisi = best;
-    quizStep = 0; quizTags = [];
-    // domaineViaQuiz reste a true : c'est lui qui declenche le badge "Proposition sur mesure"
+    quizStep = 0; quizTags = []; domaineViaQuiz = false;
     renderAccueil();
   }
 }
@@ -1416,6 +1136,7 @@ function skipAccueil(){ startWizard(false); }
 function startWizard(prefill){
   if(prefill && domaineChoisi){
     state.metierVise = domaineChoisi.poste;
+    state.secteurStage = domaineChoisi.secteur;
     state.entrepriseStage = domaineChoisi.entreprise;
   }
   screen = 'wizard';
@@ -1423,167 +1144,12 @@ function startWizard(prefill){
   document.getElementById('modeSwitch').style.display='flex';
   document.getElementById('stepsRail').style.display='flex';
   document.getElementById('mainLayout').style.display='grid';
-  document.getElementById('resetBtn').style.display='inline-block';
   cvStep = 0; lmStep = 0;
   renderRail(); renderForm(); renderPreview(); updatePreviewChrome();
 }
 
-/* ---------------- APERCU : MISE A L'ECHELLE SUR PETIT ECRAN ---------------- */
-// Sur telephone/tablette, le CV garde sa mise en page A4 (deux colonnes) : affiche
-// a 340px de large, le texte devient illisible. On le rend donc a sa largeur
-// naturelle (760px) puis on le reduit visuellement, comme une vignette fidele.
-let previewZoomed = false;
-const PREVIEW_W = 760;
-function fitPreview(){
-  const wrap = document.getElementById('paperScroll');
-  const el = document.getElementById('preview');
-  if(!wrap || !el) return;
-  const small = window.innerWidth <= 920;
-  if(!small){
-    el.style.width=''; el.style.transform='none';
-    wrap.style.height='auto'; wrap.style.overflowX='visible';
-    return;
-  }
-  el.style.width = PREVIEW_W+'px';
-  el.style.transformOrigin = 'top left';
-  if(previewZoomed){
-    el.style.transform='none';
-    wrap.style.height='auto'; wrap.style.overflowX='auto';
-    return;
-  }
-  wrap.style.overflowX='hidden';
-  if(!wrap.clientWidth) return; // conteneur pas encore mesurable (bloc masque) : on ne reduit pas a zero
-  const scale = Math.min(1, wrap.clientWidth / PREVIEW_W);
-  el.style.transform = 'scale('+scale+')';
-  wrap.style.height = (el.offsetHeight * scale) + 'px';
-}
-function togglePreviewZoom(){
-  previewZoomed = !previewZoomed;
-  const b = document.getElementById('previewZoomBtn');
-  if(b) b.textContent = previewZoomed ? "🔎 Réduire l'aperçu" : "🔍 Agrandir l'aperçu";
-  fitPreview();
-}
-let fitTimer = null;
-window.addEventListener('resize', () => {
-  clearTimeout(fitTimer);
-  fitTimer = setTimeout(fitPreview, 150);
-});
-
-/* ---------------- CONSIGNE PDF SELON L'APPAREIL ---------------- */
-function isTouchDevice(){
-  const ua = navigator.userAgent || '';
-  return /iPad|iPhone|iPod|Android/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(ua));
-}
-const HINT_TOUCH = "<b>« Télécharger mon PDF »</b> enregistre directement le fichier, sans réglage : c'est le plus simple sur tablette et téléphone. Sinon, <b>« Version imprimable »</b> ouvre la fenêtre d'impression de ta tablette ou de ton téléphone. Cherche l'option <b>« Enregistrer au format PDF »</b> (sur iPad et iPhone, elle se trouve souvent dans le bouton <b>Partager</b> de l'aperçu d'impression), et vérifie que l'orientation est bien <b>portrait</b>. Les intitulés changent d'un appareil à l'autre : si tu ne trouves pas, demande de l'aide. L'export est souvent plus simple depuis un ordinateur.";
-
-/* ---------------- SAUVEGARDE AUTOMATIQUE ---------------- */
-const STORAGE_KEY = 'afev-atelier-cv-v1';
-let pendingRestore = null;
-let saveTimer = null;
-let saveBroken = false;
-
-function saveNow(){
-  try{
-    const payload = {
-      v: 1,
-      ts: Date.now(),
-      state: state,
-      mode: mode,
-      cvStep: cvStep,
-      lmStep: lmStep,
-      screen: screen,
-      domaineIdx: domaineChoisi ? DOMAINES.indexOf(domaineChoisi) : -1,
-      domaineViaQuiz: domaineViaQuiz
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    if(saveBroken){ saveBroken = false; updateSaveNote(); }
-  }catch(e){
-    // quota depasse, navigation privee, stockage bloque par l'etablissement...
-    if(!saveBroken){ saveBroken = true; updateSaveNote(); }
-  }
-}
-function scheduleSave(){
-  if(screen !== 'wizard') return;
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveNow, 500);
-}
-function updateSaveNote(){
-  const n = document.querySelector('.recap-note');
-  if(!n) return;
-  n.innerHTML = saveBroken
-    ? "⚠️ La sauvegarde automatique ne fonctionne pas sur cet appareil : pense à enregistrer ton PDF avant de fermer la page."
-    : "Aperçu mis à jour automatiquement. Ton travail est enregistré sur cet appareil, tu peux fermer la page et revenir.";
-}
-function loadSaved(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return null;
-    const data = JSON.parse(raw);
-    if(!data || !data.state) return null;
-    const st = data.state;
-    const commence = st.prenom || st.nom || st.classe || st.etablissement ||
-      st.lmMotivation || st.lmAtouts || st.profilTexte ||
-      (Array.isArray(st.experiences) && st.experiences.length) ||
-      (Array.isArray(st.qualites) && st.qualites.length);
-    return commence ? data : null;
-  }catch(e){ return null; }
-}
-function restoreBannerHTML(){
-  if(!pendingRestore) return '';
-  const st = pendingRestore.state || {};
-  const qui = (st.prenom || st.nom) ? `${st.prenom||''} ${st.nom||''}`.trim() : '';
-  const quand = pendingRestore.ts ? new Date(pendingRestore.ts).toLocaleDateString('fr-FR') : '';
-  return `
-    <div class="restore-banner">
-      <div class="restore-text">💾 Un travail ${qui?`commencé par <b>${esc(qui)}</b>`:'déjà commencé'}${quand?` le ${quand}`:''} a été retrouvé sur cet appareil.<br>
-      <b>Ce n'est pas toi ?</b> Choisis « Recommencer à zéro ».</div>
-      <div class="restore-actions">
-        <button type="button" class="btn btn-primary" onclick="restoreSaved()">Reprendre ce travail</button>
-        <button type="button" class="btn btn-ghost" onclick="discardSaved()">Recommencer à zéro</button>
-      </div>
-    </div>`;
-}
-function restoreSaved(){
-  const data = pendingRestore;
-  if(!data) return;
-  Object.assign(state, data.state || {});
-  ['qualites','competences','langues','numerique'].forEach(k=>{
-    if(!Array.isArray(state[k])) state[k] = [];
-  });
-  // Les versions precedentes enregistraient les qualites sous leur forme affichee
-  // ("Curieux(se)") et non sous leur identifiant : on convertit pour ne rien perdre.
-  state.qualites = state.qualites.map(v=>{
-    const q = QUALITES.find(x => x.m===v || x.f===v || x.n===v);
-    return q ? q.m : v;
-  });
-  if(!Array.isArray(state.experiences)) state.experiences = [];
-  domaineChoisi = (typeof data.domaineIdx === 'number' && data.domaineIdx >= 0) ? DOMAINES[data.domaineIdx] : null;
-  domaineViaQuiz = !!data.domaineViaQuiz;
-  pendingRestore = null;
-  startWizard(false);
-  cvStep = Math.min(Math.max(0, data.cvStep|0), cvSteps.length-1);
-  lmStep = Math.min(Math.max(0, data.lmStep|0), lmSteps.length-1);
-  setMode(data.mode === 'lm' ? 'lm' : 'cv');
-  updateSaveNote();
-}
-function discardSaved(){
-  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
-  pendingRestore = null;
-  renderAccueil();
-}
-function resetAll(){
-  if(!confirm("Effacer tout ton travail et repartir de zéro ? Cette action est définitive.")) return;
-  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
-  location.reload();
-}
-
 /* ---------------- INIT ---------------- */
 document.querySelector('.brand-logo').src = ILLUS.logo;
-if(isTouchDevice()){
-  const h = document.getElementById('previewHint');
-  if(h) h.innerHTML = HINT_TOUCH;
-}
-pendingRestore = loadSaved();
 renderAccueil();
 
 </script>
