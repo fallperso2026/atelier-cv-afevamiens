@@ -412,8 +412,8 @@ button.btn:disabled{opacity:0.35;cursor:not-allowed;}
         <button class="btn btn-primary" id="pdfBtn" onclick="downloadPDF()">📥 Télécharger mon PDF</button>
         <button class="btn btn-ghost" id="printBtn" onclick="printDoc()">🖨️ Version imprimable</button>
       </div>
-      <div class="preview-hint" id="previewHint" style="display:none;"><b>« Télécharger mon PDF »</b> enregistre directement le fichier sur ton appareil, sans rien régler. Si ce bouton n'apparaît pas ou ne fonctionne pas, utilise <b>« Version imprimable »</b> : dans la fenêtre qui s'ouvre : choisis <b>« Enregistrer au format PDF »</b>, puis dans « Plus de paramètres » décoche <b>« En-têtes et pieds de page »</b>, coche <b>« Graphismes d'arrière-plan »</b>, et mets <b>« Marges »</b> sur <b>« Aucune »</b> (indispensable : sinon le navigateur ajoute son propre espace, le bandeau bleu ne descend plus jusqu'en bas et une page blanche peut s'ajouter). Ce sont des réglages du navigateur (pas de l'outil) : une fois faits, ils resteront pour les prochains enregistrements sur cet ordinateur.</div>
-      <div class="preview-label" id="previewLabel">👀 Aperçu de ton document — tu pourras l'enregistrer en PDF à la toute dernière étape.</div>
+      <div class="preview-hint" id="previewHint" style="display:none;"><b>« Télécharger mon PDF »</b> enregistre directement ton fichier ; s'il ne fonctionne pas, clique sur <b>« Version imprimable »</b>, choisis <b>« Enregistrer au format PDF »</b> puis, dans « Plus de paramètres », décoche <b>« En-têtes et pieds de page »</b>, coche <b>« Graphismes d'arrière-plan »</b> et mets <b>« Marges »</b> sur <b>« Aucune »</b>.</div>
+      <div class="preview-label" id="previewLabel">👀 Aperçu de ton document - tu pourras l'enregistrer en PDF à la toute dernière étape.</div>
       <div class="paper-scroll" id="paperScroll"><div class="paper" id="preview"></div></div>
       <button type="button" class="btn btn-ghost preview-zoom" id="previewZoomBtn" onclick="togglePreviewZoom()">🔍 Agrandir l'aperçu</button>
       <div class="recap-note">Aperçu mis à jour automatiquement au fil de tes réponses.</div>
@@ -449,7 +449,7 @@ const state = {
   lmDest:'', lmMotivation:'', lmAtouts:'',
   photoData:'',
   qualiteLibre:'', competenceLibre:'', langueLibre:'', numeriqueLibre:'',
-  genre:'', // '' = les deux formes, 'f' = feminin, 'm' = masculin
+  genre:'', // 'f' = feminin, 'm' = masculin, '' = pas encore choisi (choix obligatoire a l'etape 1)
   colorTheme:0,
   profilTexte:'',
   aideQui:'', aideMotivation:'', aideRecherche:''
@@ -563,8 +563,7 @@ const QUALITES = [
 ];
 const GENRES = [
   {id:'f', label:'Au féminin',     ex:'Curieuse, Organisée'},
-  {id:'m', label:'Au masculin',    ex:'Curieux, Organisé'},
-  {id:'',  label:'Les deux formes', ex:'Curieux(se), Organisé(e)'}
+  {id:'m', label:'Au masculin',    ex:'Curieux, Organisé'}
 ];
 const COMPETENCES = ['Travail en équipe','Prise de parole','Bricolage/manuel','Dessin','Écriture','Cuisine','Musique','Aide aux autres','Sens de l\'organisation','Tondre la pelouse','Garder des enfants (frères, sœurs, cousins…)','Aider à la maison (ménage, cuisine)','Faire les courses','S\'occuper d\'animaux','Aider au jardin ou au potager','Conduire un engin agricole (accompagné·e)'];
 const LANGUES = ['Français','Anglais','Espagnol','Allemand','Italien','Arabe','Autre langue parlée à la maison'];
@@ -578,7 +577,7 @@ const cvSteps = [
     sub:"On commence par les infos de base.",
     info:"C'est la première chose que voit un·e recruteur·se : ton identité et où te joindre. Ton adresse apparaîtra sur ton CV et en haut de ta lettre.",
     tip:"<b>Astuce :</b> écris ton adresse comme sur une enveloppe : le numéro et la rue, puis le code postal et la ville.",
-    validate(){ return state.prenom.trim() && state.nom.trim(); },
+    validate(){ return state.prenom.trim() && state.nom.trim() && (state.genre==='f' || state.genre==='m'); },
     render(){
       return `
       <div class="field"><label>Photo <span class="hint">(facultatif)</span></label>
@@ -600,7 +599,7 @@ const cvSteps = [
       </div>
       <div class="field"><label>Comment veux-tu que ton CV soit écrit ?</label>
         <div class="chip-group">${genreChips()}</div>
-        <span class="hint">Ça évite les formes comme « Curieux(se) » sur ton CV. Tu peux changer d'avis à tout moment.</span></div>
+        <span class="hint">Tes qualités et ta lettre s'accorderont selon ton choix. Tu peux changer d'avis à tout moment.</span></div>
       <div class="field"><label>Adresse <span class="hint">(numéro et nom de la rue)</span></label>
         <input type="text" maxlength="60" autocomplete="address-line1" value="${esc(state.adresse)}" oninput="update('adresse',this.value)" placeholder="Ex : 12 rue des Fleurs"></div>
       <div class="field"><label>Complément d'adresse <span class="hint">(facultatif)</span></label>
@@ -645,7 +644,7 @@ const cvSteps = [
     title:"Ta scolarité",
     illus:"livres",
     sub:"Ton établissement et ce que tu aimes étudier.",
-    tip:"<b>Astuce :</b> mets ta classe actuelle (ex : 3e2), pas celle de l'an prochain. Cite 2 ou 3 matières préférées, même si ça n'a pas de lien direct avec le métier visé — ça montre ta curiosité.",
+    tip:"<b>Astuce :</b> mets ta classe actuelle (ex : 3e2), pas celle de l'an prochain. Cite 2 ou 3 matières préférées, même si ça n'a pas de lien direct avec le métier visé - ça montre ta curiosité.",
     render(){
       return `
       <div class="row-court">
@@ -704,7 +703,7 @@ const cvSteps = [
       return `
       <div class="field"><label>Centres d'intérêt <span class="hint">(sport, loisirs, passions)</span></label>
         <textarea maxlength="180" oninput="update('interets',this.value)" placeholder="Ex : Football (club du village), pêche, jeux vidéo">${esc(state.interets)}</textarea></div>
-      <div class="field"><label>Expérience <span class="hint">(facultatif — stage, job, bénévolat, aide régulière...)</span></label></div>
+      <div class="field"><label>Expérience <span class="hint">(facultatif - stage, job, bénévolat, aide régulière...)</span></label></div>
       ${cards}
       <button type="button" class="btn btn-ghost" onclick="addExperience()">+ Ajouter une expérience</button>`;
     }
@@ -761,7 +760,7 @@ const lmSteps = [
     title:"À qui s'adresse ta lettre ?",
     illus:"presentation",
     sub:"Les coordonnées de l'entreprise ou de la personne qui recrute.",
-    tip:"<b>Astuce :</b> pas de nom précis ? Écris simplement 'Madame, Monsieur,' — c'est tout à fait correct.",
+    tip:"<b>Astuce :</b> pas de nom précis ? Écris simplement 'Madame, Monsieur,' - c'est tout à fait correct.",
     render(){
       return `
       <div class="field"><label>Nom de l'entreprise / destinataire</label>
@@ -896,6 +895,8 @@ function genererProfilTexte(){
 }
 /* ---------------- ACCORD EN GENRE ---------------- */
 // gTxt('masculin','feminin','les deux') : renvoie la forme correspondant au choix.
+// La forme « les deux » n'est plus proposee a l'eleve : elle ne sert plus que
+// tant que le choix n'est pas fait (ex : onglet Lettre ouvert avant l'etape 1).
 function gTxt(m, f, n){
   if(state.genre==='m') return m;
   if(state.genre==='f') return f;
@@ -910,7 +911,7 @@ function gLabel(id){
 }
 function setGenre(g){
   state.genre = g;
-  renderForm(); renderPreview();
+  renderRail(); renderForm(); renderPreview(); // le rail se debloque une fois le choix fait
 }
 function genreChips(){
   return GENRES.map(g=>`<span class="chip ${state.genre===g.id?'selected':''}" onclick="setGenre('${g.id}')">${g.label} <span style="opacity:.7;font-weight:400;">· ${g.ex}</span></span>`).join('');
@@ -1028,7 +1029,7 @@ function updatePreviewChrome(){
   document.getElementById('previewHint').style.display = isLast ? 'block':'none';
   document.getElementById('previewLabel').textContent = isLast
     ? "✅ Ton document est prêt : enregistre-le en PDF ci-dessous."
-    : "👀 Aperçu de ton document — tu pourras l'enregistrer en PDF à la toute dernière étape.";
+    : "👀 Aperçu de ton document - tu pourras l'enregistrer en PDF à la toute dernière étape.";
 }
 function themePickerHTML(){
   return `
@@ -1049,7 +1050,7 @@ function setColorTheme(o){ state.colorTheme=o; renderForm(); renderPreview(); }
 function cvHTML(){
   const nomComplet = (state.prenom||'Ton prénom')+' '+(state.nom||'').toUpperCase();
   const initiales = ((state.prenom||'?')[0]+(state.nom||'?')[0]).toUpperCase();
-  const cible = state.metierVise ? `Recherche un stage d'observation — ${esc(state.metierVise)}` : '';
+  const cible = state.metierVise ? `Recherche un stage d'observation - ${esc(state.metierVise)}` : '';
 
   const sec = (cls, title, body) => `<div class="cv-section ${cls}"><h3>${title}</h3>${body}</div>`;
   const tagBlock = (arr,empty)=> arr.length? `<div class="cv-tags">${arr.map(v=>`<span>${esc(v)}</span>`).join('')}</div>` : `<p class="empty-hint">${empty}</p>`;
@@ -1070,7 +1071,7 @@ function cvHTML(){
 
   const filledExperiences = state.experiences.filter(e=>e.lieu.trim()||e.periode.trim()||e.missions.trim());
   const experienceSection = filledExperiences.length ? sec('c-jaune','💼 Expérience',
-    filledExperiences.map(e=>`<p><b>${esc(e.lieu)||'Expérience'}</b>${e.periode?` — ${esc(e.periode)}`:''}${e.missions?`<br>${esc(e.missions)}`:''}</p>`).join('')
+    filledExperiences.map(e=>`<p><b>${esc(e.lieu)||'Expérience'}</b>${e.periode?` - ${esc(e.periode)}`:''}${e.missions?`<br>${esc(e.missions)}`:''}</p>`).join('')
   ) : '';
 
   const wbrBreak = s => s.replace(/([@._-])/g, '$1<wbr>');
@@ -1120,9 +1121,9 @@ function lmHTML(){
 
   let corps = '';
   corps += `Madame, Monsieur,\n\n`;
-  corps += `Je suis élève de ${esc(state.classe)||'3e'} au ${esc(state.etablissement)||'...'}, et je me permets de vous adresser cette lettre afin de solliciter un stage d'observation${state.entrepriseStage?` au sein de ${esc(state.entrepriseStage)}`:''}.\n\n`;
-  corps += state.lmMotivation ? `${esc(state.lmMotivation)}\n\n` : `[Explique ici pourquoi ce secteur t'intéresse — étape 2]\n\n`;
-  corps += state.lmAtouts ? `${esc(state.lmAtouts)}\n\n` : `[Explique ici ce que tu peux apporter — étape 3]\n\n`;
+  corps += `Je suis élève de ${esc(state.classe)||'3e'} au collège ${esc(state.etablissement)||'...'}, et je me permets de vous adresser cette lettre afin de solliciter un stage d'observation${state.entrepriseStage?` au sein de ${esc(state.entrepriseStage)}`:''}.\n\n`;
+  corps += state.lmMotivation ? `${esc(state.lmMotivation)}\n\n` : `[Explique ici pourquoi ce secteur t'intéresse - étape 2]\n\n`;
+  corps += state.lmAtouts ? `${esc(state.lmAtouts)}\n\n` : `[Explique ici ce que tu peux apporter - étape 3]\n\n`;
   corps += `Je reste à votre disposition pour tout renseignement complémentaire et je vous remercie par avance de l'attention portée à ma demande.\n\n`;
 
   return `
@@ -1442,7 +1443,7 @@ function accueilQuestionHTML(){
         <h2>Avant de commencer… 🚀</h2>
         <p><b>Après la théorie, place à la pratique !</b> L'Afev Amiens te propose de réaliser avec toi ton CV et ta lettre de motivation. Pour rappel, ces deux documents te permettront de candidater pour ton stage d'observation de 3e.</p>
         <p>Tu sais déjà où tu veux postuler, ou tu veux juste améliorer un CV que tu as déjà ? <a onclick="skipAccueil()">Clique ici pour aller directement à l'atelier →</a></p>
-        <p>Pas d'idée de métier ou de domaine qui pourrait te correspondre ? 🤔 Choisis un domaine ci-dessous et entraîne toi à préparer ton CV et ta lettre de motivation pour une demande de stage !</p>
+        <p>Pas d'idée de métier ou de domaine qui pourrait te correspondre ? 🤔 Choisis un domaine ci-dessous et découvre une offre de stage à explorer !</p>
       </div>
       <div class="accueil-domains">
         ${DOMAINES.map((d,i)=>`
@@ -1689,6 +1690,12 @@ function restoreSaved(){
   cvStep = Math.min(Math.max(0, data.cvStep|0), cvSteps.length-1);
   lmStep = Math.min(Math.max(0, data.lmStep|0), lmSteps.length-1);
   setMode(data.mode === 'lm' ? 'lm' : 'cv');
+  if(state.genre!=='f' && state.genre!=='m'){
+    // Sauvegarde d'une version ou « Les deux formes » existait : choix a refaire.
+    cvStep = 0;
+    showRequiredHint = true;
+    setMode('cv');
+  }
   updateSaveNote();
 }
 function discardSaved(){
